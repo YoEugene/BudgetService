@@ -12,7 +12,7 @@ class BudgetsInterface:
 
     @classmethod
     def get_all(cls) -> List[Budget]:
-        return cls.budgets
+        return cls.budgets  # implement function to query data from db here
 
     @classmethod
     def inject_mock_data(cls, budgets) -> None:
