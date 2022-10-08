@@ -52,14 +52,10 @@ class BudgetService:
         days_of_month = monthrange(start.year, start.month)[1]
         days = (end - start).days + 1
 
-        return Decimal(self.__calculate_budget(days, days_of_month, month_budget))
+        return Decimal(month_budget / days_of_month * days)
 
     def __get_entire_month_budget(self, date: datetime) -> int:
         for i in self.budgets:
             if i.year_month == date.strftime("%Y%m"):
                 return i.amount
         return 0
-
-    @staticmethod
-    def __calculate_budget(days: int, days_of_month: int, month_budget: int) -> float:
-        return month_budget / days_of_month * days
