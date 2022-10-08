@@ -1,6 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
-from budget_service import Budget, BudgetService, BudgetsInterface
+from budget_service import BudgetService
+from budget_interface import Budget, BudgetsInterface
 import unittest
 
 
