@@ -1,10 +1,9 @@
 from datetime import datetime, timedelta
 from decimal import Decimal
 from calendar import monthrange
-from typing import List
 from dateutil.relativedelta import relativedelta
 
-from budget_interface import Budget, BudgetsInterface
+from budget_interface import BudgetsInterface
 
 
 class BudgetService:
