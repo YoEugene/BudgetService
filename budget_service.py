@@ -11,13 +11,9 @@ class BudgetService:
     def __init__(self):
         self.budgets = []
 
-    def get_budgets_from_db(self) -> None:
-        # print("\n\n=============== POKE DB ===============")
-        self.budgets = self.__get_budgets()
-
     def query(self, start: datetime, end: datetime) -> Decimal:
-        if not self.budgets:  # get data from db if not already done
-            self.get_budgets_from_db()
+        # get data from db
+        self.budgets = self.__get_budgets()
 
         if start > end:  # deal with illegal input date range
             return Decimal(0)
