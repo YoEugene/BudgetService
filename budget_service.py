@@ -52,7 +52,5 @@ class BudgetService:
         return Decimal(month_budget / days_of_month * days)
 
     def __get_entire_month_budget(self, date: datetime) -> int:
-        for i in self.budgets:
-            if i.year_month == date.strftime("%Y%m"):
-                return i.amount
-        return 0
+        result = [b for b in self.budgets if b.year_month == date.strftime("%Y%m")]
+        return result[0].amount if len(result) > 0 else 0
