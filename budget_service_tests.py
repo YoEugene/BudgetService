@@ -62,13 +62,13 @@ class MyTestCase(unittest.TestCase):
         start_date = datetime(2022, 10, 28)
         end_date = datetime(2022, 11, 3)
         budget = self.budget_service.query(start_date, end_date)
-        self.assertEqual(budget, Decimal(400))
+        self.assertEqual(budget, Decimal(430))
 
     def test_should_be_multiple_months(self):
-        start_date = datetime(2022, 10, 28)
+        start_date = datetime(2021, 10, 28)
         end_date = datetime(2023, 3, 3)
         budget = self.budget_service.query(start_date, end_date)
-        self.assertEqual(budget, Decimal(400))
+        self.assertEqual(budget, Decimal(3431))
 
 
 if __name__ == "__main__":

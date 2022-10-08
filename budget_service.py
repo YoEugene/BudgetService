@@ -11,13 +11,14 @@ class Budget:
 
 
 class BudgetsInterface:
-    def __init__(self):
-        pass
-
     @staticmethod
     def get_all():
-        budget = Budget("202210", 3100)
-        return [budget]
+        return [
+            Budget("202210", 3100),
+            Budget("202211", 300),
+            Budget("202212", 31),
+            Budget("202301", 310),
+        ]
 
 
 class BudgetService:
