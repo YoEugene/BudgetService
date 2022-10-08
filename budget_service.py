@@ -20,12 +20,14 @@ class BudgetService:
         if month_delta == 0:
             return self.__get_budget_within_same_month(start, end)
         else:
-            return self.__get_budget_across_different_months(start, end, month_delta)
+            return self.__get_budget_across_multiple_months(start, end, month_delta)
 
-    def __get_budget_within_same_month(self, start, end) -> Decimal:
+    def __get_budget_within_same_month(self, start: datetime, end: datetime) -> Decimal:
         return self.__get_partial_month_budget(start, end)
 
-    def __get_budget_across_different_months(self, start, end, month_delta) -> Decimal:
+    def __get_budget_across_multiple_months(
+        self, start: datetime, end: datetime, month_delta: int
+    ) -> Decimal:
         total_budget = Decimal(0)
 
         partial_end = (

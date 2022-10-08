@@ -6,7 +6,7 @@ import unittest
 
 
 class BudgetTestCase(unittest.TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         self.budget_service = BudgetService()
 
     def test_should_be_zero_with_illegal_date_range(self):
