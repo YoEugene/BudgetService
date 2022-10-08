@@ -11,16 +11,14 @@ class BudgetService:
         self.budgets = []
 
     def query(self, start: datetime, end: datetime) -> Decimal:
-        self.budgets = BudgetsInterface.get_all()
-
-        if start > end:
+        if start > end:  # illegal date range
             return Decimal(0)
 
+        self.budgets = BudgetsInterface.get_all()
         month_delta = (end.year - start.year) * 12 + (end.month - start.month)
         if month_delta == 0:
             return self.__get_budget_within_same_month(start, end)
-        else:
-            return self.__get_budget_across_multiple_months(start, end, month_delta)
+        return self.__get_budget_across_multiple_months(start, end, month_delta)
 
     def __get_budget_within_same_month(self, start: datetime, end: datetime) -> Decimal:
         return self.__get_partial_month_budget(start, end)
@@ -53,6 +51,6 @@ class BudgetService:
 
         return Decimal(month_budget / days_of_month * days)
 
-    def __get_entire_month_budget(self, date: datetime) -> int:
+    def __get_entire_month_budget(self, date: datetime) -> Decimal:
         result = [b for b in self.budgets if b.year_month == date.strftime("%Y%m")]
-        return result[0].amount if len(result) > 0 else 0
+        return Decimal(result[0].amount) if len(result) > 0 else Decimal(0)
