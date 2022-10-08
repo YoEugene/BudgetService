@@ -9,23 +9,10 @@ class BudgetTestCase(unittest.TestCase):
     def setUp(self) -> None:
         self.budget_service = BudgetService()
 
-    def test_mock_date_should_not_be_empty(self):
-        BudgetsInterface.inject_mock_data(
-            [
-                Budget("202210", 3100),
-            ]
-        )
-        self.budget_service.get_budgets_from_db()
-
-        self.assertEqual(len(self.budget_service.budgets) > 0, True)
-
     def test_should_get_budget_within_same_month(self):
         BudgetsInterface.inject_mock_data(
             [
                 Budget("202210", 3100),
-                Budget("202211", 300),
-                Budget("202212", 31),
-                Budget("202301", 310),
             ]
         )
 
@@ -46,7 +33,7 @@ class BudgetTestCase(unittest.TestCase):
         budget = self.budget_service.query(start_date, end_date)
         self.assertEqual(budget, Decimal(0))
 
-    def test_should_get_budget_across_multiple_months_a(self):
+    def test_should_get_budget_across_multiple_months_overlap_a(self):
         BudgetsInterface.inject_mock_data(
             [
                 Budget("202210", 3100),
@@ -60,9 +47,9 @@ class BudgetTestCase(unittest.TestCase):
         start_date = datetime(2021, 10, 28)
         end_date = datetime(2023, 1, 6)
         budget = self.budget_service.query(start_date, end_date)
-        self.assertEqual(budget, Decimal(3491))
+        self.assertEqual(budget, Decimal(3100 + 300 + 31 + 60))
 
-    def test_should_get_budget_across_multiple_months_b(self):
+    def test_should_get_budget_across_multiple_months_overlap_b(self):
         BudgetsInterface.inject_mock_data(
             [
                 Budget("202210", 3100),
@@ -75,9 +62,9 @@ class BudgetTestCase(unittest.TestCase):
         start_date = datetime(2021, 10, 28)
         end_date = datetime(2023, 3, 3)
         budget = self.budget_service.query(start_date, end_date)
-        self.assertEqual(budget, Decimal(4097))
+        self.assertEqual(budget, Decimal(3100 + 300 + 31 + 666))
 
-    def test_should_get_budget_across_multiple_months_c(self):
+    def test_should_get_budget_across_multiple_months_overlap_c(self):
         BudgetsInterface.inject_mock_data(
             [
                 Budget("202210", 3100),
@@ -90,7 +77,7 @@ class BudgetTestCase(unittest.TestCase):
         start_date = datetime(2022, 10, 28)
         end_date = datetime(2023, 3, 3)
         budget = self.budget_service.query(start_date, end_date)
-        self.assertEqual(budget, Decimal(831))
+        self.assertEqual(budget, Decimal(400 + 300 + 31 + 100))
 
     def test_should_be_zero_with_illegal_date_range(self):
         BudgetsInterface.inject_mock_data(
