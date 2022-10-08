@@ -4,7 +4,7 @@ from budget_service import Budget, BudgetService, BudgetsInterface
 import unittest
 
 
-class MyTestCase(unittest.TestCase):
+class BudgetTestCase(unittest.TestCase):
     def setUp(self) -> None:
         self.budget_service = BudgetService()
 
@@ -12,9 +12,7 @@ class MyTestCase(unittest.TestCase):
         BudgetsInterface.budgets = [
             Budget("202210", 3100),
         ]
-        self.assertEqual(
-            len(self.budget_service.get_budgets()) > 0, True
-        )  # add assertion here
+        self.assertEqual(len(self.budget_service.get_budgets()) > 0, True)
 
     def test_should_get_full_month_budget_private(self):
         BudgetsInterface.budgets = [
@@ -23,16 +21,6 @@ class MyTestCase(unittest.TestCase):
         test_date = datetime(2022, 10, 2)
         budget = self.budget_service.get_month_budget(test_date)
         self.assertEqual(budget, 3100)
-
-    def test_should_get_partial_month_budget(self):
-        BudgetsInterface.budgets = [
-            Budget("202210", 3100),
-            Budget("202301", 310),
-        ]
-        start_date = datetime(2022, 10, 2)
-        end_date = datetime(2022, 10, 10)
-        budget = self.budget_service.get_budget_by_partial_month(start_date, end_date)
-        self.assertEqual(budget, 900)
 
     def test_should_get_partial_month_budget(self):
         BudgetsInterface.budgets = [

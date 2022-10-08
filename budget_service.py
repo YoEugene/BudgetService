@@ -1,12 +1,11 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from decimal import Decimal
 from calendar import monthrange
-from dateutil.relativedelta import relativedelta
 
 
 class Budget:
-    def __init__(self, yearMonth, amount):
-        self.yearMonth = yearMonth
+    def __init__(self, year_month, amount):
+        self.year_month = year_month
         self.amount = amount
 
 
@@ -19,9 +18,6 @@ class BudgetsInterface:
 
 
 class BudgetService:
-    def __init__(self):
-        pass
-
     @staticmethod
     def get_budgets():
         return BudgetsInterface.get_all()
@@ -29,12 +25,14 @@ class BudgetService:
     @staticmethod
     def get_month_delta(start, end):
         return (end.month - start.month) + (end.year - start.year) * 12
-        # return relativedelta(end, start).months
 
-    # '20220828' '20221005'
+    @staticmethod
+    def calculate_budget(days, days_of_month, month_budget):
+        return month_budget / days_of_month * days
+
     def query(self, start: datetime, end: datetime) -> Decimal:
         if start > end:
-            return 0
+            return Decimal(0)
 
         month_delta = (end.month - start.month) + (end.year - start.year) * 12
 
@@ -42,43 +40,31 @@ class BudgetService:
         if month_delta == 0:
             total_budget = self.get_budget_by_partial_month(start, end)
             return total_budget
-        elif month_delta == 1:
-            # 0828 0831
-            total_budget += self.get_budget_by_month_start(start)
-
-            # 0901 0905
-            total_budget += self.get_budget_by_month_end(end)
-            return total_budget
-
         else:
-            # 20220828 20220831
             total_budget += self.get_budget_by_month_start(start)
 
             for i in range(1, month_delta):
-                # 20220901 20220930
                 year_acc = (start.month + i - 1) // 12
                 tmp_month = (start.month + i) % 12 + 1
                 tmp_date = datetime(start.year + year_acc, tmp_month, 1)
-                # a + relativedelta(months=33)
                 total_budget += self.get_budget_by_full_month(tmp_date)
 
-            # 20230601 20231005
             total_budget += self.get_budget_by_month_end(end)
-            return total_budget
+            return Decimal(total_budget)
 
     def get_budget_by_month_start(self, start: datetime):
         month_budget = self.get_month_budget(start)
         days_of_month = monthrange(start.year, start.month)[1]
         days = (days_of_month - start.day) + 1
-        return month_budget / days_of_month * days
+        return self.calculate_budget(days, days_of_month, month_budget)
 
     def get_budget_by_month_end(self, end: datetime):
         month_budget = self.get_month_budget(end)
         days_of_month = monthrange(end.year, end.month)[1]
         days = end.day
-        return month_budget / days_of_month * days
+        return self.calculate_budget(days, days_of_month, month_budget)
 
-    def get_budget_by_full_month(self, date: datetime) -> Decimal:
+    def get_budget_by_full_month(self, date: datetime) -> int:
         return self.get_month_budget(date)
 
     def get_budget_by_partial_month(self, start: datetime, end: datetime) -> Decimal:
@@ -86,11 +72,11 @@ class BudgetService:
         days_of_month = monthrange(start.year, start.month)[1]
         days = (end - start).days + 1
 
-        return month_budget / days_of_month * days
+        return self.calculate_budget(days, days_of_month, month_budget)
 
     def get_month_budget(self, date: datetime) -> int:
         for i in self.get_budgets():
-            if i.yearMonth == date.strftime("%Y%m"):
+            if i.year_month == date.strftime("%Y%m"):
                 return i.amount
 
         return 0
