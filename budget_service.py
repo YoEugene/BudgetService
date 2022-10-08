@@ -27,25 +27,22 @@ class BudgetService:
 
     def __get_budget_across_different_months(self, start, end, month_delta) -> Decimal:
         total_budget = Decimal(0)
-        total_budget += self.__get_partial_month_budget_with_start(start)
-        for i in range(1, month_delta):
-            total_budget += self.__get_entire_month_budget(
-                start + relativedelta(months=i)
-            )
-        total_budget += self.__get_partial_month_budget_with_end(end)
-        return total_budget
 
-    def __get_partial_month_budget_with_start(self, start: datetime) -> Decimal:
-        end = (
+        partial_end = (
             datetime(start.year, start.month, 1)
             + relativedelta(months=1)
             - timedelta(days=1)
         )
-        return self.__get_partial_month_budget(start, end)
+        total_budget += self.__get_partial_month_budget(start, partial_end)
 
-    def __get_partial_month_budget_with_end(self, end: datetime) -> Decimal:
-        start = datetime(end.year, end.month, 1)
-        return self.__get_partial_month_budget(start, end)
+        for i in range(1, month_delta):
+            total_budget += self.__get_entire_month_budget(
+                start + relativedelta(months=i)
+            )
+
+        partial_start = datetime(end.year, end.month, 1)
+        total_budget += self.__get_partial_month_budget(partial_start, end)
+        return total_budget
 
     def __get_partial_month_budget(self, start: datetime, end: datetime) -> Decimal:
         month_budget = self.__get_entire_month_budget(start)
