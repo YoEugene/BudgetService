@@ -11,20 +11,20 @@ class Budget:
 
 
 class BudgetsInterface:
+    budgets = []
+
     @staticmethod
     def get_all():
-        return [
-            Budget("202210", 3100),
-            Budget("202211", 300),
-            Budget("202212", 31),
-            Budget("202301", 310),
-        ]
+        return BudgetsInterface.budgets
 
 
 class BudgetService:
     def __init__(self):
-        budget_interface = BudgetsInterface()
-        self.budgets = budget_interface.get_all()
+        pass
+
+    @staticmethod
+    def get_budgets():
+        return BudgetsInterface.get_all()
 
     @staticmethod
     def get_month_delta(start, end):
@@ -89,7 +89,7 @@ class BudgetService:
         return month_budget / days_of_month * days
 
     def get_month_budget(self, date: datetime) -> int:
-        for i in self.budgets:
+        for i in self.get_budgets():
             if i.yearMonth == date.strftime("%Y%m"):
                 return i.amount
 
