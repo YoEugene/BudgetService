@@ -1,6 +1,8 @@
 from datetime import datetime
 from decimal import Decimal
 from calendar import monthrange
+from typing import List
+from dateutil.relativedelta import relativedelta
 
 
 class Budget:
@@ -12,70 +14,85 @@ class Budget:
 class BudgetsInterface:
     budgets = []
 
-    @staticmethod
-    def get_all():
-        return BudgetsInterface.budgets
+    @classmethod
+    def get_all(cls) -> List[Budget]:
+        return cls.budgets
+
+    @classmethod
+    def inject_mock_data(cls, budgets) -> None:
+        cls.budgets = budgets
 
 
 class BudgetService:
-    @staticmethod
-    def get_budgets():
-        return BudgetsInterface.get_all()
-
-    @staticmethod
-    def get_month_delta(start, end):
-        return (end.month - start.month) + (end.year - start.year) * 12
-
-    @staticmethod
-    def calculate_budget(days, days_of_month, month_budget):
-        return month_budget / days_of_month * days
+    def __init__(self):
+        self.budgets = []
 
     def query(self, start: datetime, end: datetime) -> Decimal:
+        if not self.budgets:
+            self.get_budgets_from_db()
+
         if start > end:
             return Decimal(0)
 
-        month_delta = (end.month - start.month) + (end.year - start.year) * 12
+        month_delta = self._calculate_month_delta(end, start)
+        if month_delta == 0:  # same month
+            return self.get_budget_within_same_month(end, start)
+        else:  # different month
+            return self.get_budget_across_different_months(end, month_delta, start)
 
+    def get_budgets_from_db(self) -> None:
+        # print("\n\n=============== POKE DB ===============")
+        self.budgets = self._get_budgets()
+
+    def get_budget_within_same_month(self, end, start) -> Decimal:
+        return self._get_budget_by_partial_month(start, end)
+
+    def get_budget_across_different_months(self, end, month_delta, start) -> Decimal:
         total_budget = 0
-        if month_delta == 0:
-            total_budget = self.get_budget_by_partial_month(start, end)
-            return total_budget
-        else:
-            total_budget += self.get_budget_by_month_start(start)
+        total_budget += self._get_budget_with_start_date(start)
+        for i in range(1, month_delta):
+            total_budget += self._get_budget_by_full_month(
+                start + relativedelta(months=i)
+            )
+        total_budget += self._get_budget_with_end_date(end)
+        return Decimal(total_budget)
 
-            for i in range(1, month_delta):
-                year_acc = (start.month + i - 1) // 12
-                tmp_month = (start.month + i) % 12 + 1
-                tmp_date = datetime(start.year + year_acc, tmp_month, 1)
-                total_budget += self.get_budget_by_full_month(tmp_date)
+    @staticmethod
+    def _get_budgets() -> List[Budget]:
+        return BudgetsInterface.get_all()
 
-            total_budget += self.get_budget_by_month_end(end)
-            return Decimal(total_budget)
+    @staticmethod
+    def calculate_budget(days: int, days_of_month: int, month_budget: int) -> float:
+        return month_budget / days_of_month * days
 
-    def get_budget_by_month_start(self, start: datetime):
-        month_budget = self.get_month_budget(start)
+    @staticmethod
+    def _calculate_month_delta(end, start) -> int:
+        return (end.year - start.year) * 12 + (end.month - start.month)
+
+    def _get_budget_with_start_date(self, start: datetime) -> float:
+        month_budget = self._get_month_budget(start)
         days_of_month = monthrange(start.year, start.month)[1]
         days = (days_of_month - start.day) + 1
         return self.calculate_budget(days, days_of_month, month_budget)
 
-    def get_budget_by_month_end(self, end: datetime):
-        month_budget = self.get_month_budget(end)
+    def _get_budget_with_end_date(self, end: datetime) -> float:
+        month_budget = self._get_month_budget(end)
         days_of_month = monthrange(end.year, end.month)[1]
         days = end.day
         return self.calculate_budget(days, days_of_month, month_budget)
 
-    def get_budget_by_full_month(self, date: datetime) -> int:
-        return self.get_month_budget(date)
+    def _get_budget_by_full_month(self, date: datetime) -> int:
+        return self._get_month_budget(date)
 
-    def get_budget_by_partial_month(self, start: datetime, end: datetime) -> Decimal:
-        month_budget = self.get_month_budget(start)
+    def _get_budget_by_partial_month(self, start: datetime, end: datetime) -> Decimal:
+        month_budget = self._get_month_budget(start)
         days_of_month = monthrange(start.year, start.month)[1]
         days = (end - start).days + 1
 
-        return self.calculate_budget(days, days_of_month, month_budget)
+        return Decimal(self.calculate_budget(days, days_of_month, month_budget))
 
-    def get_month_budget(self, date: datetime) -> int:
-        for i in self.get_budgets():
+    def _get_month_budget(self, date: datetime) -> int:
+        for i in self.budgets:
             if i.year_month == date.strftime("%Y%m"):
                 return i.amount
 
