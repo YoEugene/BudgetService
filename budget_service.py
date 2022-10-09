@@ -28,18 +28,18 @@ class BudgetService:
     def __get_budget_across_months(self, start: datetime, end: datetime) -> Decimal:
         total_budget = Decimal(0)
 
-        partial_end = (
-            datetime(start.year, start.month, 1)
-            + relativedelta(months=1)
-            - timedelta(days=1)
-        )
+        # first month
+        last_day_of_month = monthrange(start.year, start.month)[1]
+        partial_end = datetime(start.year, start.month, last_day_of_month)
         total_budget += self.__get_budget_partial_month(start, partial_end)
 
+        # middle part
         month_delta = (end.year - start.year) * 12 + (end.month - start.month)
         for i in range(1, month_delta):
             step_month = start + relativedelta(months=i)
             total_budget += self.__get_budget_entire_month(step_month)
 
+        # last month
         partial_start = datetime(end.year, end.month, 1)
         total_budget += self.__get_budget_partial_month(partial_start, end)
         return total_budget
