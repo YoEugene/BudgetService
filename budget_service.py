@@ -6,22 +6,22 @@ from dateutil.relativedelta import relativedelta
 
 
 class Budget:
-    def __init__(self, yearMonth, amount):
-        self.yearMonth = yearMonth
+    def __init__(self, year_month, amount):
+        self.year_month = year_month
         self.amount = amount
 
     def get_days(self):
-        return monthrange(int(self.yearMonth[:4]), int(self.yearMonth[-2:]))[1]
+        return monthrange(int(self.year_month[:4]), int(self.year_month[-2:]))[1]
 
     def daily_amount(self):
         return self.amount / self.get_days()
 
     def get_last_day(self):
-        first_day = datetime.strptime(self.yearMonth, "%Y%m").date()
+        first_day = datetime.strptime(self.year_month, "%Y%m").date()
         return datetime(first_day.year, first_day.month, self.get_days())
 
     def get_first_day(self):
-        return datetime.strptime(self.yearMonth, "%Y%m")
+        return datetime.strptime(self.year_month, "%Y%m")
 
 
 class BudgetsInterface:
@@ -55,10 +55,10 @@ class BudgetService:
             current = start
             while current < end.replace(day=1) + relativedelta(months=+1):
                 budget = self.get_month_budget(current)
-                if budget.yearMonth == start.strftime("%Y%m"):
+                if budget.year_month == start.strftime("%Y%m"):
                     overlapping_days = (budget.get_last_day() - start).days + 1
                     # days = (budget.get_days() - start.day) + 1
-                elif budget.yearMonth == end.strftime("%Y%m"):
+                elif budget.year_month == end.strftime("%Y%m"):
                     overlapping_days = (end - budget.get_first_day()).days + 1
                     # days = end.day
                 else:
@@ -93,7 +93,7 @@ class BudgetService:
 
     def get_month_budget(self, date: datetime) -> Budget:
         for i in self.get_budgets():
-            if i.yearMonth == date.strftime("%Y%m"):
+            if i.year_month == date.strftime("%Y%m"):
                 return i
                 # return i.amount
 
