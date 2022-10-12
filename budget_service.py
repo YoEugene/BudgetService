@@ -53,8 +53,8 @@ class BudgetService:
                     days = (days_of_month - start.day) + 1
                     total_budget += budget.daily_amount() * days
                 elif budget.yearMonth == end.strftime("%Y%m"):
-                    day = end.day
-                    total_budget += budget.daily_amount() * day
+                    days = end.day
+                    total_budget += budget.daily_amount() * days
                 else:
                     total_budget += budget.amount
                 current = current + relativedelta(months=+1)
