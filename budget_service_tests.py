@@ -15,6 +15,9 @@ class BudgetServiceTestCase(unittest.TestCase):
         self.budget_service = BudgetService()
         self.fake_get_budgets.return_value = [Budget("202210", 3100)]
 
+    def given_budgets(self, budgets):
+        self.fake_get_budgets.return_value = budgets
+
     def tearDown(self) -> None:
         patch.stopall()
 
@@ -24,9 +27,6 @@ class BudgetServiceTestCase(unittest.TestCase):
         end_date = datetime(2022, 10, 5)
         budget = self.budget_service.query(start_date, end_date)
         self.assertEqual(budget, Decimal(300))
-
-    def given_budgets(self, budgets):
-        self.fake_get_budgets.return_value = budgets
 
     def test_should_be_two_months(self):
         self.given_budgets(
